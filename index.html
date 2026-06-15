@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mounjax – Gotinhas que Auxiliam a Queima de Gordura</title>
+
+<!-- Meta Pixel + CAPI com deduplicação EMQ 10 -->
+<script>
+// ============================================================
+//  CONFIGURAÇÃO
+// ============================================================
+var PIXEL_ID   = '2530432834039677';
+var CAPI_TOKEN = 'EAAaS1z8uRm8BRNuIZA8nDTnu5Bewv4dT4bcCLuj9LlFwFRqvcWLGBBoEXoFwHzJagguoXNehtAZCnbMkraCNRWM8yPPcFv3RPLZCBfLGYXVgd6g1mxCkut3r76M0eG8svw4ZCmU17OyNm3SZAaCIVC3YuEBOl9dMwaTmtd4NDOCJWPEC7ZCR97X0sEYlvZBU7Nm6QZDZD';
+var CAPI_URL   = 'https://graph.facebook.com/v19.0/' + PIXEL_ID + '/events?access_token=' + CAPI_TOKEN;
+
+// ============================================================
+//  UTILITÁRIOS
+// ============================================================
+// Gera ID único para deduplicação pixel <-> CAPI
+function genEventId() {
+  return 'ev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Lê cookie pelo nome
+function getCookie(name) {
+  var match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
+// Lê _fbc direto do cookie — NÃO construir manualmente (exigência Meta)
+function getFbc() {
+  return getCookie('_fbc') || null;
+}
+
+// Retorna _fbp do cookie do pixel
+function getFbp() {
+  return getCookie('_fbp') || null;
+}
+
+// ============================================================
+//  ENVIA EVENTO VIA CAPI
+// ============================================================
+function sendCAPI(eventName, eventId) {
+  var payload = {
+    data: [{
+      event_name: eventName,
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: eventId,
+      action_source: 'website',
+      event_source_url: window.location.href,
+      user_data: {
+        client_user_agent: navigator.userAgent,
+        fbp: getFbp(),
+        fbc: getFbc()
+      }
+    }]
+  };
+
+  // Remove nulos para não prejudicar EMQ
+  var ud = payload.data[0].user_data;
+  Object.keys(ud).forEach(function(k){ if (!ud[k]) delete ud[k]; });
+
+  fetch(CAPI_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true
+  }).catch(function(){});
+}
+
+// ============================================================
+//  META PIXEL (browser)
+// ============================================================
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', PIXEL_ID);
+
+// --- PageView com deduplicação ---
+var pvId = genEventId();
+fbq('track', 'PageView', {}, { eventID: pvId });
+sendCAPI('PageView', pvId);
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=2530432834039677&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel + CAPI -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --navy: #130f3f;
+  --purple: #1e1757;
+  --purple-mid: #2a2070;
+  --red: #e8302a;
+  --red-light: #ff4444;
+  --green: #2aad5e;
+  --green-dark: #1e8a48;
+  --gold: #f5c518;
+  --white: #ffffff;
+  --gray: rgba(255,255,255,.65);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  overflow-x: hidden;
+}
+a { text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* ===== STICKY BAR ===== */
+.sticky {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+  background: #0c0930;
+  padding: 10px 20px;
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  transform: translateY(-100%);
+  transition: transform .4s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5);
+  border-bottom: 2px solid var(--red);
+}
+.sticky.show { transform: translateY(0); }
+.sticky span { font-size: .85rem; font-weight: 700; color: var(--gray); }
+.sticky span b { color: var(--red-light); }
+.sticky-btn {
+  background: var(--green);
+  color: #fff;
+  font-weight: 800;
+  font-size: .85rem;
+  padding: 9px 22px;
+  border-radius: 50px;
+  white-space: nowrap;
+  animation: pulse-green 2s infinite;
+}
+
+/* ===== BUTTONS ===== */
+.btn-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2ec96b, var(--green));
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 16px 40px;
+  border-radius: 60px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 28px rgba(42,173,94,.5);
+  transition: transform .2s, box-shadow .2s;
+}
+.btn-green:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 10px 36px rgba(42,173,94,.7); }
+.btn-green:active { transform: scale(.97); }
+.btn-green.lg { font-size: 1.1rem; padding: 20px 52px; }
+
+/* ===== LAYOUT ===== */
+.container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+section { width: 100%; }
+
+/* ===== HERO ===== */
+.hero {
+  background: linear-gradient(160deg, #0b0930 0%, #1a1455 60%, #23186a 100%);
+  padding: 70px 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 30%, rgba(232,48,42,.12) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.hero-content { position: relative; z-index: 2; }
+.hero-tag {
+  display: inline-block;
+  background: rgba(232,48,42,.2);
+  border: 1px solid rgba(232,48,42,.5);
+  color: #ff8888;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 50px;
+  margin-bottom: 18px;
+}
+.hero h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 18px;
+  color: #fff;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--red);
+  display: block;
+}
+.hero-sub {
+  font-size: .95rem;
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 28px;
+  max-width: 420px;
+}
+.hero-sub b { color: #fff; }
+.hero-img {
+  position: relative; z-index: 2;
+  padding-bottom: 0;
+}
+.hero-img img {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  filter: drop-shadow(0 20px 60px rgba(0,0,0,.6));
+}
+.trust-row {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 20px;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .72rem; font-weight: 700; color: var(--gray);
+}
+.trust-item .ico { font-size: .9rem; }
+
+/* ===== TIMER ===== */
+.timer-section {
+  background: rgba(0,0,0,.3);
+  padding: 20px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  margin-top: 32px;
+}
+.timer-inner {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; flex-wrap: wrap; max-width: 960px; margin: 0 auto;
+}
+.timer-label-text { font-size: .8rem; font-weight: 700; color: var(--gray); text-align: center; }
+.timer-label-text b { color: var(--red-light); }
+.timer-boxes { display: flex; gap: 6px; align-items: center; }
+.t-box {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  padding: 8px 14px;
+  text-align: center; min-width: 58px;
+}
+.t-num {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--red-light);
+  display: block; line-height: 1;
+}
+.t-sub { font-size: .55rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.4); margin-top: 2px; display: block; }
+.t-sep { font-size: 1.5rem; font-weight: 900; color: var(--red-light); margin-bottom: 8px; }
+.stock-pill {
+  background: rgba(232,48,42,.15);
+  border: 1px solid rgba(232,48,42,.3);
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: #ff9999;
+}
+.stock-pill b { color: #fff; }
+
+/* ===== TICKER ===== */
+.ticker {
+  background: var(--red);
+  color: #fff;
+  padding: 10px 0;
+  overflow: hidden;
+  font-size: .85rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ticker-inner {
+  display: inline-block;
+  animation: tick 20s linear infinite;
+}
+@keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ===== BEFORE/AFTER ===== */
+.social-section {
+  background: var(--purple);
+  padding: 70px 20px;
+}
+.section-head { text-align: center; margin-bottom: 44px; }
+.section-head h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+.section-head h2 em { font-style: normal; color: var(--red); }
+.section-head p { color: var(--gray); font-size: .9rem; margin-top: 10px; }
+.section-divider { width: 50px; height: 3px; background: var(--red); border-radius: 3px; margin: 12px auto 0; }
+
+.ba-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+.ba-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  padding: 24px 20px;
+  text-align: center;
+  transition: transform .3s, border-color .3s;
+}
+.ba-card:hover { transform: translateY(-6px); border-color: var(--green); }
+.ba-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red), #8c2cdb);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.4rem; font-weight: 700;
+  color: #fff; margin: 0 auto 12px;
+}
+.ba-name { font-weight: 800; font-size: .95rem; margin-bottom: 6px; }
+.ba-result {
+  display: inline-block;
+  background: rgba(42,173,94,.2);
+  border: 1px solid rgba(42,173,94,.4);
+  color: #5de89a;
+  font-size: .75rem; font-weight: 800;
+  padding: 3px 12px; border-radius: 50px;
+  margin-bottom: 10px;
+}
+.ba-stars { color: var(--gold); font-size: .9rem; margin-bottom: 8px; }
+.ba-text { font-size: .85rem; color: var(--gray); line-height: 1.6; font-style: italic; }
+
+/* ===== OFFER BOX ===== */
+.offer-section {
+  background: linear-gradient(160deg, #0b0930, #1c1554);
+  padding: 60px 20px;
+}
+.offer-box {
+  background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 28px;
+  padding: 48px 40px;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.offer-box::before {
+  content: '★★★★';
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+  color: var(--gold); font-size: 1rem; letter-spacing: 4px;
+}
+.offer-badge-red {
+  display: inline-block;
+  background: var(--red);
+  color: #fff;
+  font-size: .75rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 5px 18px; border-radius: 50px;
+  margin: 28px 0 16px;
+}
+.offer-box h2 { font-family: 'Oswald', sans-serif; font-size: 2rem; font-weight: 700; line-height: 1.2; }
+.offer-box .from { color: var(--gray); font-size: .9rem; text-decoration: line-through; margin-top: 20px; }
+.offer-box .installments { font-size: 1rem; color: rgba(255,255,255,.8); font-weight: 600; margin-top: 4px; }
+.price-big {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(3.5rem, 10vw, 5.5rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1; margin: 4px 0;
+}
+.offer-box .or { color: var(--gray); font-size: .85rem; }
+.offer-box .vista { font-size: 1.3rem; font-weight: 800; color: var(--green); margin: 4px 0 28px; }
+.offer-product-img { max-width: 260px; margin: 0 auto 24px; }
+
+/* ===== INGREDIENTS ===== */
+.ingr-section {
+  background: linear-gradient(160deg, #1a1554, #0f0c38);
+  padding: 70px 20px;
+}
+.ingr-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.ingr-img img { border-radius: 20px; filter: drop-shadow(0 20px 60px rgba(0,0,0,.6)); }
+.ingr-cards { display: flex; flex-direction: column; gap: 16px; }
+.ingr-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  padding: 20px 22px;
+  display: flex; gap: 14px; align-items: flex-start;
+  transition: border-color .3s;
+}
+.ingr-card:hover { border-color: var(--red); }
+.ingr-num {
+  background: var(--red);
+  color: #fff;
+  font-family: 'Oswald', sans-serif;
+  font-size: .75rem; font-weight: 700;
+  padding: 3px 9px; border-radius: 50px;
+  white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+}
+.ingr-card h4 { font-size: .95rem; font-weight: 800; margin-bottom: 4px; }
+.ingr-card p { font-size: .82rem; color: var(--gray); line-height: 1.5; }
+
+/* ===== HOW TO ===== */
+.how-section {
+  background: var(--purple);
+  padding: 70px 20px;
+}
+.how-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.how-content { order: 1; }
+.how-img { order: 2; }
+.how-img img { border-radius: 20px; filter: drop-shadow(0 20px 60px rgba(0,0,0,.5)); }
+.how-content h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.how-content h2 em { font-style: normal; color: var(--red); }
+.how-content p { color: var(--gray); line-height: 1.7; font-size: .9rem; margin-bottom: 24px; }
+
+/* ===== KITS ===== */
+.kits-section {
+  background: linear-gradient(160deg, #0b0930, #1c1554);
+  padding: 80px 20px;
+}
+.kits-header { text-align: center; margin-bottom: 16px; }
+.kits-date {
+  text-align: center;
+  font-size: .85rem;
+  color: var(--gray);
+  margin-bottom: 36px;
+}
+.kits-date b { color: var(--red-light); }
+.kits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.kit-card {
+  background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px;
+  padding: 24px 16px;
+  text-align: center;
+  position: relative;
+  transition: transform .3s, border-color .3s;
+}
+.kit-card:hover { transform: translateY(-6px); border-color: rgba(42,173,94,.5); }
+.kit-card.popular {
+  border-color: var(--green);
+  background: linear-gradient(160deg, rgba(42,173,94,.12), rgba(42,173,94,.04));
+}
+.kit-badge {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: #fff;
+  font-size: .65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 4px 14px; border-radius: 50px;
+  white-space: nowrap;
+}
+.kit-badge.red { background: var(--red); }
+.kit-img { margin: 0 auto 14px; max-height: 140px; object-fit: contain; }
+.kit-period {
+  font-size: .65rem; text-transform: uppercase;
+  letter-spacing: 1px; font-weight: 800;
+  color: var(--red-light); margin-bottom: 6px;
+}
+.kit-title { font-size: .78rem; color: var(--gray); font-weight: 600; margin-bottom: 14px; }
+.kit-title strong { color: #fff; display: block; }
+.kit-from { font-size: .8rem; color: rgba(255,255,255,.4); text-decoration: line-through; }
+.kit-inst { font-size: .75rem; color: rgba(255,255,255,.7); font-weight: 600; }
+.kit-inst strong {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  display: block; line-height: 1.1;
+}
+.kit-or { font-size: .72rem; color: rgba(255,255,255,.4); margin: 4px 0; }
+.kit-vista { font-size: .95rem; font-weight: 800; color: var(--green); margin-bottom: 8px; }
+.kit-frete { font-size: .68rem; font-weight: 800; color: var(--green); margin-bottom: 14px; }
+.kit-bonus { font-size: .7rem; color: var(--gray); margin-bottom: 14px; }
+.kit-btn {
+  display: block; width: 100%;
+  background: var(--green);
+  color: #fff;
+  font-weight: 800; font-size: .8rem;
+  text-transform: uppercase; letter-spacing: .5px;
+  padding: 12px 8px; border-radius: 60px;
+  border: none; cursor: pointer;
+  transition: transform .2s, background .2s;
+}
+.kit-btn:hover { transform: scale(1.04); background: var(--green-dark); }
+
+/* ===== REVIEWS ===== */
+.reviews-section {
+  background: var(--purple);
+  padding: 70px 20px;
+}
+.rating-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.rating-big { text-align: center; }
+.rating-num {
+  font-family: 'Oswald', sans-serif;
+  font-size: 5rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+.rating-stars { color: var(--gold); font-size: 1.4rem; }
+.rating-count { font-size: .8rem; color: var(--gray); margin-top: 4px; }
+.rating-bars { width: 220px; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.bar-label { font-size: .72rem; color: var(--gold); min-width: 14px; }
+.bar-track { flex: 1; background: rgba(255,255,255,.1); border-radius: 10px; height: 8px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 10px; background: var(--gold); }
+
+/* ===== GUARANTEE ===== */
+.guarantee-section {
+  background: linear-gradient(160deg, #0b0930, #1c1554);
+  padding: 70px 20px;
+}
+.guarantee-inner {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 780px;
+  margin: 0 auto;
+}
+.guar-badge {
+  width: 150px; height: 150px; border-radius: 50%;
+  background: var(--purple-mid);
+  border: 3px solid var(--green);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 40px rgba(42,173,94,.3);
+}
+.guar-badge .gd { font-family: 'Oswald', sans-serif; font-size: 3rem; font-weight: 700; color: var(--green); line-height: 1; }
+.guar-badge .gl { font-size: .6rem; text-transform: uppercase; color: rgba(255,255,255,.6); letter-spacing: 1.5px; }
+.guar-badge .gx { font-size: .65rem; font-weight: 700; color: rgba(255,255,255,.5); text-align: center; margin-top: 2px; }
+.guar-text h3 { font-family: 'Oswald', sans-serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+.guar-text h3 em { font-style: normal; color: var(--red); }
+.guar-text p { color: var(--gray); font-size: .9rem; line-height: 1.7; }
+
+/* ===== FAQ ===== */
+.faq-section {
+  background: var(--purple);
+  padding: 70px 20px;
+}
+.faq-list { max-width: 700px; margin: 40px auto 0; display: flex; flex-direction: column; gap: 10px; }
+.faq-item {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.faq-item.open { border-color: rgba(232,48,42,.3); }
+.faq-q {
+  width: 100%; background: transparent; border: none;
+  color: #fff; font-family: 'Montserrat', sans-serif;
+  font-size: .9rem; font-weight: 700;
+  padding: 18px 52px 18px 20px;
+  text-align: left; cursor: pointer;
+  position: relative;
+}
+.faq-q::after {
+  content: '+';
+  position: absolute; right: 18px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem; color: var(--red);
+  transition: transform .3s;
+}
+.faq-item.open .faq-q::after { transform: translateY(-50%) rotate(45deg); }
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height .35s ease, padding .3s;
+  font-size: .85rem; color: var(--gray); line-height: 1.7;
+  padding: 0 20px;
+}
+.faq-item.open .faq-a { max-height: 300px; padding: 0 20px 20px; }
+
+/* ===== FOOTER ===== */
+footer {
+  background: #080623;
+  padding: 40px 20px;
+  text-align: center;
+  font-size: .78rem;
+  color: rgba(255,255,255,.35);
+  line-height: 1.8;
+}
+footer a { color: rgba(255,255,255,.3); text-decoration: underline; }
+.footer-warning {
+  background: rgba(255,255,255,.04);
+  border-radius: 10px;
+  padding: 14px; max-width: 660px;
+  margin: 16px auto;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse-green {
+  0%,100% { box-shadow: 0 0 0 0 rgba(42,173,94,.6); }
+  50% { box-shadow: 0 0 0 8px rgba(42,173,94,0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fu { opacity: 0; animation: fadeUp .6s ease forwards; }
+.fu.d1 { animation-delay: .1s; }
+.fu.d2 { animation-delay: .25s; }
+.fu.d3 { animation-delay: .4s; }
+.fu.d4 { animation-delay: .55s; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .hero-inner { grid-template-columns: 1fr; text-align: center; }
+  .hero-img { order: -1; }
+  .hero-sub { max-width: 100%; }
+  .trust-row { justify-content: center; }
+  .ingr-split, .how-split { grid-template-columns: 1fr; }
+  .how-content { order: 2; }
+  .how-img { order: 1; }
+  .kits-grid { grid-template-columns: 1fr 1fr; }
+  .rating-display { gap: 24px; }
+  .guarantee-inner { gap: 24px; text-align: center; }
+}
+@media (max-width: 480px) {
+  .kits-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY BAR -->
+<div class="sticky" id="stickyBar">
+  <span>⏳ Oferta por tempo limitado — <b>FRETE GRÁTIS</b> para todo Brasil</span>
+  <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="sticky-btn">GARANTIR AGORA →</a>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-tag fu d1">🌿 Fórmula 100% Natural</div>
+      <h1 class="fu d2">
+        Gotinhas que auxiliam a
+        <em>queima de gordura</em>
+      </h1>
+      <p class="hero-sub fu d3">
+        <b>Chega de evitar fotos ou se esconder em roupas largas.</b> Com Mounjax, desinche de forma saudável e recupere a alegria de viver!
+      </p>
+      <a href="https://ev.braip.com/campanhas/cpa/cam0m08x2" class="btn-green lg fu d4">
+        🛒 COMPRAR AGORA
+      </a>
+      <div class="trust-row fu d4">
+        <div class="trust-item"><span class="ico">🔒</span> Dados protegidos</div>
+        <div class="trust-item"><span class="ico">💳</span> Todos os cartões</div>
+        <div class="trust-item"><span class="ico">🛡️</span> Compra segura</div>
+      </div>
+    </div>
+    <div class="hero-img fu d3">
+      <img src="https://mounjax.com/wp-content/uploads/2025/05/3frascos1.webp" alt="Mounjax 3 frascos" loading="eager">
+    </div>
+  </div>
+
+  <!-- TIMER -->
+  <div class="timer-section">
+    <div class="timer-inner">
+      <div class="timer-label-text">⏰ Oferta encerra em: <b>Garanta antes que acabe!</b></div>
+      <div class="timer-boxes">
+        <div class="t-box"><span class="t-num" id="th">02</span><span class="t-sub">horas</span></div>
+        <div class="t-sep">:</div>
+        <div class="t-box"><span class="t-num" id="tm">59</span><span class="t-sub">min</span></div>
+        <div class="t-sep">:</div>
+        <div class="t-box"><span class="t-num" id="ts">59</span><span class="t-sub">seg</span></div>
+      </div>
+      <div class="stock-pill">⚠️ Restam <b id="stock">19</b> kits com frete grátis</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp; ✱ FRETE GRÁTIS &nbsp;&nbsp;&nbsp;
+  </div>
+</div>
+
+<!-- SOCIAL PROOF -->
+<section class="social-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Veja a mudança que <em>você pode viver!</em></h2>
+      <p>Resultados reais de pessoas reais que mudaram de vida após usar Mounjax</p>
+      <div class="section-divider"></div>
+    </div>
+    <div class="ba-grid">
+      <div class="ba-card">
+        <div class="ba-avatar">M</div>
+        <div class="ba-name">Mariana S.</div>
+        <div class="ba-result">−11kg em 3 meses</div>
+        <div class="ba-stars">★★★★★</div>
+        <p class="ba-text">"Tentei de tudo e nada funcionava. Com o Mounjax, em 4 semanas já senti diferença. Perdi 11 quilos e me olho no espelho com orgulho!"</p>
+      </div>
+      <div class="ba-card">
+        <div class="ba-avatar">C</div>
+        <div class="ba-name">Carla R.</div>
+        <div class="ba-result">−8kg em 60 dias</div>
+        <div class="ba-stars">★★★★★</div>
+        <p class="ba-text">"A barriga inchada sumiu logo na primeira semana. Eu não acreditava até ver com meus próprios olhos. Recomendo demais!"</p>
+      </div>
+      <div class="ba-card">
+        <div class="ba-avatar">P</div>
+        <div class="ba-name">Patricia M.</div>
+        <div class="ba-result">−14kg em 5 meses</div>
+        <div class="ba-stars">★★★★★</div>
+        <p class="ba-text">"Minhas amigas perguntaram o que eu fiz diferente. Fácil de usar, não sinto fome exagerada e o resultado é visível. Estou renovada!"</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;">
+      <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="btn-green">QUERO ESSE RESULTADO TAMBÉM →</a>
+    </div>
+  </div>
+</section>
+
+<!-- OFFER -->
+<section class="offer-section">
+  <div class="offer-box">
+    <div class="offer-badge-red">⚡ Desconto especial de R$210 — Hoje!</div>
+    <h2>Oferta especial<br>para você!</h2>
+    <img src="https://mounjax.com/wp-content/uploads/2025/06/kit2_2.webp" alt="Mounjax 3 frascos" class="offer-product-img">
+    <p class="from">De R$437</p>
+    <p class="installments">por apenas 12x de</p>
+    <div class="price-big">R$20,27</div>
+    <p class="or">ou</p>
+    <p class="vista">R$197 à vista</p>
+    <a href="https://ev.braip.com/campanhas/cpa/cam0m08x2" class="btn-green" style="width:100%;">🛒 COMPRAR AGORA</a>
+    <p style="font-size:.72rem;color:rgba(255,255,255,.35);margin-top:16px;">🔒 Pagamento 100% seguro · SSL Certificado</p>
+  </div>
+</section>
+
+<!-- INGREDIENTS -->
+<section class="ingr-section">
+  <div class="ingr-split">
+    <div class="ingr-img">
+      <img src="https://mounjax.com/wp-content/uploads/2025/05/img_mounjax2-837x1024.webp" alt="Mounjax ingredientes">
+    </div>
+    <div>
+      <h2 style="font-family:'Oswald',sans-serif;font-size:clamp(1.6rem,4vw,2.2rem);font-weight:700;margin-bottom:8px;line-height:1.2;">
+        <span style="color:var(--red)">3 chaves</span> essenciais da<br>formulação <em style="font-style:italic">Mounjax:</em>
+      </h2>
+      <p style="color:var(--gray);font-size:.85rem;margin-bottom:28px;">Ingredientes naturais selecionados com ciência para resultados reais</p>
+      <div class="ingr-cards">
+        <div class="ingr-card">
+          <div class="ingr-num">CHAVE 1</div>
+          <div>
+            <h4>Ignição Metabólica</h4>
+            <p>Café Verde e Dihidrocapsiato auxiliam o metabolismo de gordura, fazendo seu corpo queimar energia com mais eficiência.</p>
+          </div>
+        </div>
+        <div class="ingr-card">
+          <div class="ingr-num">CHAVE 2</div>
+          <div>
+            <h4>Limpeza Interna</h4>
+            <p>Cúrcuma, Colina e Inulina desintoxicam fígado e intestino, eliminando as principais barreiras para perda de peso.</p>
+          </div>
+        </div>
+        <div class="ingr-card">
+          <div class="ingr-num">CHAVE 3</div>
+          <div>
+            <h4>Controle de Desejos</h4>
+            <p>Feno-grego, Cromo, D3 e B12 controlam a saciedade, estabilizam a glicose e aumentam sua energia.</p>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:28px;">
+        <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="btn-green">QUERO COMEÇAR AGORA →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO USE -->
+<section class="how-section">
+  <div class="how-split">
+    <div class="how-content">
+      <h2>Transforme o corpo dos sonhos em sua nova realidade com <em>apenas 12 gotas ao dia.</em></h2>
+      <p>Mais do que perder peso, é recuperar confiança, saúde e felicidade, de forma simples, prática e saudável.</p>
+      <p>Coloque as 12 gotas embaixo da língua (sublingual), preferencialmente antes do café da manhã, sempre no mesmo horário para melhores resultados.</p>
+      <div style="margin-top:24px;">
+        <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="btn-green">GARANTIR MEU KIT AGORA →</a>
+      </div>
+    </div>
+    <div class="how-img">
+      <img src="https://mounjax.com/wp-content/uploads/2025/05/foto_gotas.webp" alt="Como usar Mounjax">
+    </div>
+  </div>
+</section>
+
+<!-- KITS -->
+<section class="kits-section" id="kits">
+  <div class="container">
+    <div class="kits-header">
+      <h2 style="font-family:'Oswald',sans-serif;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700;line-height:1.2;">Por tempo limitadíssimo,<br><span style="color:var(--red)">você começa com desconto especial:</span></h2>
+    </div>
+    <p class="kits-date">Restam poucos frascos com <b>FRETE GRÁTIS</b> no dia de hoje: <b id="todayDate"></b></p>
+
+    <div class="kits-grid">
+
+      <!-- KIT 1 -->
+      <div class="kit-card">
+        <div class="kit-period">TRATAMENTO PARA 30 DIAS</div>
+        <img src="https://mounjax.com/wp-content/uploads/2025/06/kit1-2.webp" class="kit-img" alt="1 frasco Mounjax">
+        <div class="kit-title">COMPRE 1 FRASCO<br><strong>GANHE EBOOK + APP</strong></div>
+        <div class="kit-from">De R$187</div>
+        <div class="kit-inst">por apenas 12x de<strong>R$15,12</strong></div>
+        <div class="kit-or">ou</div>
+        <div class="kit-vista">R$147 à vista</div>
+        <div class="kit-frete">🚚 FRETE GRÁTIS PARA TODO BRASIL</div>
+        <div class="kit-bonus">✅ Ebook + Acesso ao App</div>
+        <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="kit-btn">🛒 COMPRAR AGORA</a>
+      </div>
+
+      <!-- KIT 2 - POPULAR -->
+      <div class="kit-card popular">
+        <div class="kit-badge">⭐ MAIS VENDIDO</div>
+        <div class="kit-period">LEVE 3 PAGUE 2 (90 DIAS)</div>
+        <img src="https://mounjax.com/wp-content/uploads/2025/06/kit2_2.webp" class="kit-img" alt="3 frascos Mounjax">
+        <div class="kit-title">COMPRE 3 FRASCOS<br><strong>GANHE EBOOK + APP</strong></div>
+        <div class="kit-from">De R$392</div>
+        <div class="kit-inst">por apenas 12x de<strong>R$20,27</strong></div>
+        <div class="kit-or">ou</div>
+        <div class="kit-vista">R$197 à vista</div>
+        <div class="kit-frete">🚚 FRETE GRÁTIS PARA TODO BRASIL</div>
+        <div class="kit-bonus">✅ Ebook + Acesso ao App</div>
+        <a href="https://ev.braip.com/campanhas/cpa/cam0m08x2" class="kit-btn">🛒 COMPRAR AGORA</a>
+      </div>
+
+      <!-- KIT 3 -->
+      <div class="kit-card">
+        <div class="kit-badge red">💰 MELHOR CUSTO</div>
+        <div class="kit-period">LEVE 5 PAGUE 3 (150 DIAS)</div>
+        <img src="https://mounjax.com/wp-content/uploads/2025/06/kit3_2.webp" class="kit-img" alt="5 frascos Mounjax">
+        <div class="kit-title">COMPRE 5 FRASCOS<br><strong>GANHE EBOOK + APP</strong></div>
+        <div class="kit-from">De R$467</div>
+        <div class="kit-inst">por apenas 12x de<strong>R$25,41</strong></div>
+        <div class="kit-or">ou</div>
+        <div class="kit-vista">R$247 à vista</div>
+        <div class="kit-frete">🚚 FRETE GRÁTIS PARA TODO BRASIL</div>
+        <div class="kit-bonus">✅ Ebook + Acesso ao App</div>
+        <a href="https://ev.braip.com/campanhas/cpa/cam181mvn" class="kit-btn">🛒 COMPRAR AGORA</a>
+      </div>
+
+      <!-- KIT 4 -->
+      <div class="kit-card">
+        <div class="kit-period">LEVE 8 PAGUE 5 (240 DIAS)</div>
+        <img src="https://mounjax.com/wp-content/uploads/2025/06/kit4_2.webp" class="kit-img" alt="8 frascos Mounjax">
+        <div class="kit-title">COMPRE 8 FRASCOS<br><strong>GANHE EBOOK + APP</strong></div>
+        <div class="kit-from">De R$597</div>
+        <div class="kit-inst">por apenas 12x de<strong>R$38,78</strong></div>
+        <div class="kit-or">ou</div>
+        <div class="kit-vista">R$377 à vista</div>
+        <div class="kit-frete">🚚 FRETE GRÁTIS PARA TODO BRASIL</div>
+        <div class="kit-bonus">✅ Ebook + Acesso ao App</div>
+        <a href="https://ev.braip.com/campanhas/cpa/camk7og1j" class="kit-btn">🛒 COMPRAR AGORA</a>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin-top:32px;">
+      <img src="https://mounjax.com/wp-content/uploads/2025/06/pagamento-icon-300x115-1.png.webp" alt="Formas de pagamento" style="max-width:240px;margin:0 auto;opacity:.7;">
+      <p style="margin-top:10px;font-size:.78rem;color:rgba(255,255,255,.35);">🔒 Ambiente 100% seguro · SSL Certificado · Seus dados estão protegidos</p>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="reviews-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Avaliações de <em>Clientes</em></h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="rating-display">
+      <div class="rating-big">
+        <div class="rating-num">4.9</div>
+        <div class="rating-stars">★★★★★</div>
+        <div class="rating-count">+3427 avaliações</div>
+      </div>
+      <div class="rating-bars">
+        <div class="bar-row"><span class="bar-label">★5</span><div class="bar-track"><div class="bar-fill" style="width:87%"></div></div></div>
+        <div class="bar-row"><span class="bar-label">★4</span><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div></div>
+        <div class="bar-row"><span class="bar-label">★3</span><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></div>
+        <div class="bar-row"><span class="bar-label">★2</span><div class="bar-track"><div class="bar-fill" style="width:9%"></div></div></div>
+        <div class="bar-row"><span class="bar-label">★1</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="btn-green">GARANTIR O MEU COM DESCONTO →</a>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE -->
+<section class="guarantee-section">
+  <div class="container">
+    <div class="guarantee-inner">
+      <div class="guar-badge">
+        <span class="gd">30</span>
+        <span class="gl">Dias</span>
+        <span class="gx">Garantia<br>Total</span>
+      </div>
+      <div class="guar-text">
+        <h3>Super Garantia de Satisfação<br><em>30 Dias de Risco Zero!</em></h3>
+        <p>Acreditamos tanto na qualidade e eficácia do nosso produto que oferecemos a você uma Garantia Incondicional de 30 Dias. Funciona assim: Você faz o pedido, utiliza o produto no seu dia a dia e, se por qualquer motivo achar que ele não atendeu às suas expectativas, basta entrar em contato. Devolvemos <strong>100% do seu dinheiro</strong>. Sem perguntas, sem burocracia.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;">
+      <img src="https://mounjax.com/wp-content/uploads/2025/05/sem_riscos.webp" alt="Sem riscos" style="max-width:140px;opacity:.8;">
+      <img src="https://mounjax.com/wp-content/uploads/2025/05/sem_sofrimento.webp" alt="Sem sofrimento" style="max-width:140px;opacity:.8;">
+    </div>
+    <div style="text-align:center;margin-top:36px;">
+      <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="btn-green lg">CLIQUE AGORA E COMECE SUA JORNADA →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="container">
+    <div class="section-head">
+      <h2>Tem alguma dúvida?<br><em>Hora de esclarecer.</em></h2>
+      <div class="section-divider"></div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q">O Mounjax é aprovado pela ANVISA?</button>
+        <div class="faq-a">Mounjax está alinhado com as normas da ANVISA para comercialização e sem nenhuma restrição pelo órgão. Por se tratar de um Suplemento alimentar seguro para consumo, Mounjax é um produto dispensado da obrigatoriedade de registro.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">O Mounjax tem contraindicação?</button>
+        <div class="faq-a">Mounjax é feito com ingredientes 100% naturais e é seguro para a maioria das pessoas. No entanto, grávidas, nutrizes com bebê abaixo de 6 meses, menores de idade e alérgicos a crustáceos não devem usar. Se você tem condições médicas graves, consulte seu médico antes.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Como devo tomar Mounjax?</button>
+        <div class="faq-a">Recomendamos tomar 12 gotas sublingual de Mounjax antes do café da manhã. Para melhores resultados, mantenha uma alimentação equilibrada e hidrate-se adequadamente.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Quanto tempo leva para ver os resultados?</button>
+        <div class="faq-a">Os resultados podem variar de pessoa para pessoa, mas muitos usuários começam a ver mudanças notáveis em seu peso e bem-estar geral dentro das primeiras quatro semanas de uso consistente de Mounjax.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Mounjax tem efeitos colaterais?</button>
+        <div class="faq-a">Mounjax é formulado para ser gentil e eficaz, sem causar efeitos colaterais significativos. No entanto, como com qualquer suplemento, algumas pessoas podem experienciar desconforto digestivo inicial que geralmente se resolve com o uso continuado.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Posso tomar Mounjax com outros medicamentos?</button>
+        <div class="faq-a">Embora Mounjax seja um suplemento seguro, é sempre importante consultar um médico antes de começar qualquer novo suplemento, especialmente se você já está tomando medicamentos prescritos.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Mounjax pode ajudar no controle de doenças crônicas?</button>
+        <div class="faq-a">Mounjax não é um medicamento e não deve ser utilizado como substituto para tratamentos médicos para condições crônicas. No entanto, a perda de peso e a melhoria na dieta podem ajudar a gerenciar sintomas em conjunto com o tratamento médico.</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:44px;">
+      <a href="https://ev.braip.com/campanhas/cpa/came0ep2p" class="btn-green">🛒 COMPRAR AGORA</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-warning">
+    ⚠️ <strong style="color:rgba(255,255,255,.6)">Aviso:</strong> Não comercializamos o Mounjax no Mercado Livre. A venda só pode ser realizada através deste Site Oficial e não nos responsabilizamos por compras realizadas em outros sites. Evite falsificações e riscos a sua saúde.
+  </div>
+  <div style="margin:18px 0 8px;">
+    <img src="https://mounjax.com/wp-content/uploads/2025/06/pagamento-icon-300x115-1.png.webp" alt="Pagamentos" style="max-width:200px;margin:0 auto;opacity:.4;">
+  </div>
+  <p><a href="https://mounjax.com/politicas-de-privacidade/">Políticas de Privacidade</a> &nbsp;·&nbsp; <a href="https://mounjax.com/termos-e-condicoes-de-uso/">Termos e condições de Uso</a></p>
+  <p style="margin-top:10px;">© Todos os direitos reservados · Mounjax</p>
+  <p style="margin-top:10px;font-size:.7rem;opacity:.4;max-width:680px;margin-left:auto;margin-right:auto;">Os resultados podem variar de pessoa para pessoa. Este produto não se destina a diagnosticar, tratar, curar ou prevenir qualquer doença.</p>
+</footer>
+
+<script>
+// DATA DE HOJE
+const today = new Date();
+const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
+const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+document.getElementById('todayDate').textContent =
+  `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+
+// COUNTDOWN — 3h da chegada, persistido no localStorage
+function getEnd() {
+  const k = 'mjx_timer_v2';
+  let e = localStorage.getItem(k);
+  if (!e || isNaN(e)) { e = Date.now() + 3*60*60*1000; localStorage.setItem(k, e); }
+  return parseInt(e);
+}
+const endTime = getEnd();
+function tick() {
+  const diff = endTime - Date.now();
+  if (diff <= 0) {
+    ['th','tm','ts'].forEach(id => document.getElementById(id).textContent = '00');
+    return;
+  }
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  document.getElementById('th').textContent = String(h).padStart(2,'0');
+  document.getElementById('tm').textContent = String(m).padStart(2,'0');
+  document.getElementById('ts').textContent = String(s).padStart(2,'0');
+}
+tick(); setInterval(tick, 1000);
+
+// STICKY BAR
+window.addEventListener('scroll', () =>
+  document.getElementById('stickyBar').classList.toggle('show', scrollY > 500));
+
+// FAQ
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const it = btn.parentElement;
+    const open = it.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!open) it.classList.add('open');
+  });
+});
+
+// ESTOQUE DECRESCENDO
+let stock = parseInt(document.getElementById('stock').textContent);
+setInterval(() => {
+  if (stock > 4 && Math.random() < .2) {
+    stock--;
+    document.getElementById('stock').textContent = stock;
+  }
+}, 9000);
+
+// META PIXEL + CAPI — Lead ao clicar em qualquer botão de compra
+document.querySelectorAll('a[href*="ev.braip.com"]').forEach(function(link) {
+  link.addEventListener('click', function() {
+    if (typeof fbq !== 'undefined' && typeof sendCAPI === 'function') {
+      var leadId = genEventId();
+      fbq('track', 'Lead', {}, { eventID: leadId });
+      sendCAPI('Lead', leadId);
+    }
+  });
+});
+</script>
+</body>
+</html>
