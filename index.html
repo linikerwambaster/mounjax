@@ -1111,20 +1111,38 @@ setInterval(() => {
   }
 }, 9000);
 
-// META PIXEL + CAPI + GOOGLE ADS — ao clicar em qualquer botão de compra
+// =============================================================
+// MAPA Meta CPA → Google CPA (disparo em background)
+// =============================================================
+var googleCpaMap = {
+  'came0ep2p': 'https://ev.braip.com/campanhas/cpa/camom1gr6', // kit 1
+  'cam0m08x2': 'https://ev.braip.com/campanhas/cpa/camj2mn16', // kit 3
+  'cam181mvn': 'https://ev.braip.com/campanhas/cpa/cam2jg1ed', // kit 5
+  'camk7og1j': 'https://ev.braip.com/campanhas/cpa/camzvr71r'  // kit 8
+};
+
 document.querySelectorAll('a[href*="ev.braip.com"]').forEach(function(link) {
   link.addEventListener('click', function() {
+    var href = this.href;
 
-    // Meta Pixel + CAPI
+    // 1. Meta Pixel + CAPI
     if (typeof fbq !== 'undefined' && typeof sendCAPI === 'function') {
       var leadId = genEventId();
       fbq('track', 'Lead', {}, { eventID: leadId });
       sendCAPI('Lead', leadId);
     }
 
-    // Google Ads — Conversão de compra
+    // 2. Google Ads — conversão
     if (typeof gtag !== 'undefined') {
       gtag('event', 'conversion', { 'send_to': 'AW-10992640372/Mc8WCPvP778cEPTC2fko' });
+    }
+
+    // 3. Dispara link Google CPA em background (sem abrir nova aba)
+    for (var key in googleCpaMap) {
+      if (href.indexOf(key) !== -1) {
+        new Image().src = googleCpaMap[key];
+        break;
+      }
     }
 
   });
