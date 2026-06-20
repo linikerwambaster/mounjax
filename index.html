@@ -625,10 +625,10 @@ document.querySelectorAll('.faq-q').forEach(function(btn){
 
 // TRACKING — Meta CPA + Google CPA + Pixel + gtag
 var googleCpaMap={
-  'came0ep2p':'https://ev.braip.com/campanhas/cpa/camom1gr6',
-  'cam0m08x2':'https://ev.braip.com/campanhas/cpa/camj2mn16',
-  'cam181mvn':'https://ev.braip.com/campanhas/cpa/cam2jg1ed',
-  'camk7og1j':'https://ev.braip.com/campanhas/cpa/camzvr71r'
+  'came0ep2p':'https://ev.braip.com/campanhas/cpa/camj2mnn5',
+  'cam0m08x2':'https://ev.braip.com/campanhas/cpa/camom1ggz',
+  'cam181mvn':'https://ev.braip.com/campanhas/cpa/cam2jg11v',
+  'camk7og1j':'https://ev.braip.com/campanhas/cpa/camzvr77y'
 };
 document.querySelectorAll('a[href*="ev.braip.com"]').forEach(function(link){
   link.addEventListener('click',function(){
@@ -639,7 +639,7 @@ document.querySelectorAll('a[href*="ev.braip.com"]').forEach(function(link){
       sendCAPI('Lead',lid);
     }
     if(typeof gtag!=='undefined'){
-      gtag('event','conversion',{'send_to':'AW-10992640372/zY6DCMTSpsAcEPTC2fko'});
+      gtag('event','conversion',{'send_to':'AW-10992640372/mqOuCP7W0sIcEPTC2fko'});
     }
     for(var k in googleCpaMap){
       if(href.indexOf(k)!==-1){new Image().src=googleCpaMap[k];break;}
