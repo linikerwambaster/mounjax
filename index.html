@@ -641,10 +641,9 @@ document.querySelectorAll('a[href*="ev.braip.com"]').forEach(function(link){
       sendCAPI('Lead',lid);
     }
     if(typeof gtag!=='undefined'){
-      // Purchase
-      gtag('event','conversion',{'send_to':'AW-10992640372/mqOuCP7W0sIcEPTC2fko'});
-      // Begin Checkout
+      // Begin Checkout — clique no botão
       gtag('event','conversion',{'send_to':'AW-10992640372/XfRUCPGZ2MIcEPTC2fko'});
+      // Purchase é disparado pela Braip após pagamento confirmado
     }
     for(var k in googleCpaMap){
       if(href.indexOf(k)!==-1){new Image().src=googleCpaMap[k];break;}
