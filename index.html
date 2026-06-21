@@ -7,7 +7,7 @@
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-TD8NFGJ8');</script>
+})(window,document,'script','dataLayer','GTM-M5KT6MJS');</script>
 <!-- End Google Tag Manager -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mounjax – Gotinhas que Auxiliam a Queima de Gordura</title>
@@ -18,8 +18,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   function gtag(){dataLayer.push(arguments);}
   gtag('js',new Date());
   gtag('config','AW-10992640372');
-  // Page View conversion
-  gtag('event','conversion',{'send_to':'AW-10992640372/I2aqCIX9vcIcEPTC2fko'});
+  // Conversões gerenciadas pelo GTM-M5KT6MJS
 </script>
 <!-- Meta Pixel + CAPI -->
 <script>
@@ -245,7 +244,7 @@ footer{background:#0d0b30;padding:40px 20px}
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TD8NFGJ8"
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M5KT6MJS"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <!-- STICKY -->
@@ -640,11 +639,11 @@ document.querySelectorAll('a[href*="ev.braip.com"]').forEach(function(link){
       fbq('track','Lead',{},{eventID:lid});
       sendCAPI('Lead',lid);
     }
-    if(typeof gtag!=='undefined'){
-      // Begin Checkout — clique no botão
-      gtag('event','conversion',{'send_to':'AW-10992640372/XfRUCPGZ2MIcEPTC2fko'});
-      // Purchase é disparado pela Braip após pagamento confirmado
-    }
+    // Dispara dataLayer para GTM capturar Begin Checkout
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      'event': 'begin_checkout'
+    });
     for(var k in googleCpaMap){
       if(href.indexOf(k)!==-1){new Image().src=googleCpaMap[k];break;}
     }
